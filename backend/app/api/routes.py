@@ -43,7 +43,7 @@ async def health_check():
     )
 
 
-@router.post("/generate-test-cases", response_model=TestCaseGenerationResponse)
+@router.post("/generate-test-cases")
 async def generate_test_cases(
     request: TestCaseGenerationRequest,
     jira_service: JiraService = Depends(get_jira_service),
@@ -93,42 +93,25 @@ async def generate_test_cases(
             jira_issue_key=issue_key,
         )
 
-        # Parse and structure the response
-        test_cases = []
-        for tc in result.get("test_cases", []):
-            test_case = TestCase(
-                title=tc["title"],
-                description=tc["description"],
-                type=tc["type"],
-                priority=tc["priority"],
-                preconditions=tc.get("preconditions", []),
-                steps=[
-                    TestStep(
-                        step_number=step["step_number"],
-                        action=step["action"],
-                        expected_result=step["expected_result"]
-                    )
-                    for step in tc.get("steps", [])
-                ],
-                expected_outcome=tc.get("expected_outcome", ""),
-                tags=tc.get("tags", []),
-            )
-            test_cases.append(test_case)
+        # Return raw test cases as-is to preserve skill-specific formats
+        # Skills may return different structures (PP format, XSP format, etc.)
 
-        response = TestCaseGenerationResponse(
-            issue_key=issue_key,
-            feature_title=title,
-            test_cases=test_cases,
-            coverage_summary=result.get("coverage_summary", ""),
-            generation_metadata={
+        test_cases_raw = result.get("test_cases", [])
+
+        response = {
+            "issue_key": issue_key,
+            "feature_title": title,
+            "test_cases": test_cases_raw,  # Raw format from agent/skill
+            "coverage_summary": result.get("coverage_summary", ""),
+            "generation_metadata": {
                 "test_types_requested": test_types,
                 "include_edge_cases": request.include_edge_cases,
                 "include_negative_tests": request.include_negative_tests,
-                "total_test_cases_generated": len(test_cases),
+                "total_test_cases_generated": len(test_cases_raw),
             }
-        )
+        }
 
-        logger.info(f"Successfully generated {len(test_cases)} test cases")
+        logger.info(f"Successfully generated {len(test_cases_raw)} test cases")
         return response
 
     except Exception as e:

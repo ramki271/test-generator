@@ -193,37 +193,42 @@ function App() {
 
             {/* Options */}
             <div className="options-section">
-              <h3>Test Types</h3>
-              <div className="checkbox-group">
-                {['functional', 'integration', 'e2e', 'unit', 'api'].map(type => (
-                  <label key={type} className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={testTypes.includes(type)}
-                      onChange={() => toggleTestType(type)}
-                    />
-                    <span>{type.toUpperCase()}</span>
-                  </label>
-                ))}
+              <div className="option-group">
+                <h3>Test Types</h3>
+                <div className="test-types-grid">
+                  {['functional', 'integration', 'e2e', 'unit', 'api'].map(type => (
+                    <label key={type} className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={testTypes.includes(type)}
+                        onChange={() => toggleTestType(type)}
+                      />
+                      <span>{type.toUpperCase()}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
-              <div className="checkbox-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={includeEdgeCases}
-                    onChange={(e) => setIncludeEdgeCases(e.target.checked)}
-                  />
-                  <span>Include Edge Cases</span>
-                </label>
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={includeNegativeTests}
-                    onChange={(e) => setIncludeNegativeTests(e.target.checked)}
-                  />
-                  <span>Include Negative Tests</span>
-                </label>
+              <div className="option-group">
+                <h3>Additional Options</h3>
+                <div className="additional-options">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={includeEdgeCases}
+                      onChange={(e) => setIncludeEdgeCases(e.target.checked)}
+                    />
+                    <span>Include Edge Cases</span>
+                  </label>
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={includeNegativeTests}
+                      onChange={(e) => setIncludeNegativeTests(e.target.checked)}
+                    />
+                    <span>Include Negative Tests</span>
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -285,7 +290,36 @@ function App() {
                     </div>
 
                     <h3>{testCase.title}</h3>
-                    <p className="description">{testCase.description}</p>
+
+                    {/* PP-Specific Fields */}
+                    {testCase.business_impact && (
+                      <div className="project-specific-badge">
+                        <span className="badge-label">Business Impact:</span>
+                        <span className={`badge-value impact-${testCase.business_impact?.toLowerCase()}`}>
+                          {testCase.business_impact}
+                        </span>
+                      </div>
+                    )}
+                    {testCase.data_volume && (
+                      <div className="project-specific-badge">
+                        <span className="badge-label">Data Volume:</span>
+                        <span className="badge-value">{testCase.data_volume}</span>
+                      </div>
+                    )}
+
+                    {/* XSP-Specific Fields */}
+                    {testCase.platform && (
+                      <div className="project-specific-badge">
+                        <span className="badge-label">Platform:</span>
+                        <span className="badge-value">{testCase.platform}</span>
+                      </div>
+                    )}
+                    {testCase.user_story && (
+                      <div className="section user-story">
+                        <h4>User Story</h4>
+                        <p className="story-text">{testCase.user_story}</p>
+                      </div>
+                    )}
 
                     {testCase.preconditions?.length > 0 && (
                       <div className="section">
@@ -314,6 +348,45 @@ function App() {
                       <h4>Expected Outcome</h4>
                       <p>{testCase.expected_outcome}</p>
                     </div>
+
+                    {/* PP-Specific: Compliance Requirements */}
+                    {testCase.compliance_requirements?.length > 0 && (
+                      <div className="section pp-specific">
+                        <h4>Compliance Requirements</h4>
+                        <ul>
+                          {testCase.compliance_requirements.map((req, i) => (
+                            <li key={i}>{req}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* XSP-Specific: Performance Criteria */}
+                    {testCase.performance_criteria && (
+                      <div className="section xsp-specific">
+                        <h4>Performance Criteria</h4>
+                        <div className="performance-grid">
+                          {Object.entries(testCase.performance_criteria).map(([key, value]) => (
+                            <div key={key} className="perf-item">
+                              <span className="perf-label">{key.replace(/_/g, ' ')}:</span>
+                              <span className="perf-value">{value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* XSP-Specific: Platform Coverage */}
+                    {testCase.platform_coverage?.length > 0 && (
+                      <div className="section xsp-specific">
+                        <h4>Platform Coverage</h4>
+                        <div className="platform-badges">
+                          {testCase.platform_coverage.map((platform, i) => (
+                            <span key={i} className="platform-badge">{platform}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     {testCase.tags?.length > 0 && (
                       <div className="tags">

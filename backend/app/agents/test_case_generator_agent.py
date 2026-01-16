@@ -99,7 +99,10 @@ class TestCaseGeneratorAgent:
         )
 
         # Note: API key must be set in ANTHROPIC_API_KEY environment variable
-        # Configure agent options
+        # Configure agent options with Skills enabled
+        import os
+        backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
         self.agent_options = ClaudeAgentOptions(
             model="claude-sonnet-4-5-20250929",
             mcp_servers={
@@ -108,6 +111,9 @@ class TestCaseGeneratorAgent:
             permission_mode="acceptEdits",  # Non-interactive mode - auto-approve operations
             max_turns=10,  # Allow up to 10 turns for the agentic loop
             cli_path="/Users/ramakrishnan.sridar/.local/bin/claude",  # Explicit CLI path
+            cwd=backend_dir,  # Set working directory to backend root (where .claude/skills/ is)
+            setting_sources=["project"],  # Enable loading Skills from .claude/skills/
+            allowed_tools=["Skill"],  # Enable Skill invocation
         )
 
     async def generate_test_cases(
@@ -195,8 +201,11 @@ class TestCaseGeneratorAgent:
         criteria_text = "\n".join([f"- {ac}" for ac in acceptance_criteria])
         test_types_text = ", ".join(test_types)
 
-        task = f"""You are an expert QA engineer and test case designer. Generate comprehensive test cases for the following feature.
+        # Add JIRA context for skill auto-selection
+        jira_context = f"\n**JIRA Issue:** {jira_issue_key}\n" if jira_issue_key else ""
 
+        task = f"""You are an expert QA engineer and test case designer. Generate comprehensive test cases for the following feature.
+{jira_context}
 **Feature Title:** {title}
 
 **Description:**
@@ -209,6 +218,8 @@ class TestCaseGeneratorAgent:
 - Generate {test_types_text} test cases
 - Include edge cases: {"Yes" if include_edge_cases else "No"}
 - Include negative test scenarios: {"Yes" if include_negative_tests else "No"}
+
+**IMPORTANT**: If this is for a PP- or XSP- project, use the appropriate project-specific skill for formatting.
 
 **Output Format - Return ONLY valid JSON:**
 {{
@@ -235,14 +246,13 @@ class TestCaseGeneratorAgent:
 
 **Instructions:**
 1. Analyze the feature and acceptance criteria
-2. Generate at least 5 comprehensive test cases covering:
-   - Happy path scenarios
-   - {"Boundary conditions and edge cases" if include_edge_cases else "Standard cases"}
-   - {"Error handling and negative scenarios" if include_negative_tests else "Positive scenarios"}
+2. Generate EXACTLY 2 high-quality test cases covering:
+   - 1 Happy path scenario (most important positive case)
+   - 1 {"Edge case or negative scenario" if include_edge_cases or include_negative_tests else "Alternative scenario"}
 3. Ensure each test case has all required fields
 4. Return ONLY the JSON object, no additional text
 
-Begin generating test cases now."""
+Begin generating test cases now. Remember: Generate ONLY 2 test cases for faster processing."""
 
         return task
 

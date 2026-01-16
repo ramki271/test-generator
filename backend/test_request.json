@@ -1,0 +1,16 @@
+{
+  "manual_input": {
+    "title": "User Login Feature",
+    "description": "Users should be able to authenticate using email and password. The system validates credentials against the database and provides appropriate feedback.",
+    "acceptance_criteria": [
+      "User can enter email and password in the login form",
+      "System validates credentials against the database",
+      "User is redirected to dashboard on successful login",
+      "Error message is displayed for invalid credentials",
+      "Account is locked after 5 failed attempts"
+    ]
+  },
+  "test_types": ["functional"],
+  "include_edge_cases": true,
+  "include_negative_tests": true
+}

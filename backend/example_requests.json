@@ -1,0 +1,89 @@
+{
+  "examples": {
+    "jira_based_request": {
+      "description": "Generate test cases from a JIRA issue",
+      "request": {
+        "jira_issue": {
+          "issue_key": "PROJ-123"
+        },
+        "test_types": ["functional", "integration"],
+        "include_edge_cases": true,
+        "include_negative_tests": true
+      }
+    },
+    "manual_input_request": {
+      "description": "Generate test cases from manual input",
+      "request": {
+        "manual_input": {
+          "title": "User Registration Feature",
+          "description": "Allow new users to register for an account with email verification",
+          "acceptance_criteria": [
+            "User can enter email, password, and confirm password",
+            "System validates email format",
+            "Password must meet complexity requirements (8+ chars, uppercase, lowercase, number)",
+            "Confirmation email is sent to user's email address",
+            "User can click verification link to activate account",
+            "Account is marked as active after verification"
+          ]
+        },
+        "test_types": ["functional", "api", "integration"],
+        "include_edge_cases": true,
+        "include_negative_tests": true
+      }
+    },
+    "simple_request": {
+      "description": "Simple test case generation with defaults",
+      "request": {
+        "manual_input": {
+          "title": "Shopping Cart - Add Item",
+          "description": "Users can add products to their shopping cart",
+          "acceptance_criteria": [
+            "User clicks 'Add to Cart' button on product page",
+            "Item is added to cart with correct quantity",
+            "Cart icon shows updated item count",
+            "Success message is displayed"
+          ]
+        }
+      }
+    },
+    "api_test_request": {
+      "description": "Generate API-focused test cases",
+      "request": {
+        "manual_input": {
+          "title": "REST API - Get User Profile",
+          "description": "API endpoint to retrieve user profile information",
+          "acceptance_criteria": [
+            "GET /api/users/{id} returns user profile",
+            "Response includes user id, name, email, and creation date",
+            "Returns 200 status code for valid user",
+            "Returns 404 for non-existent user",
+            "Requires authentication token in header"
+          ]
+        },
+        "test_types": ["api"],
+        "include_edge_cases": true,
+        "include_negative_tests": true
+      }
+    },
+    "e2e_test_request": {
+      "description": "Generate end-to-end test scenarios",
+      "request": {
+        "manual_input": {
+          "title": "E-commerce Checkout Flow",
+          "description": "Complete purchase flow from cart to order confirmation",
+          "acceptance_criteria": [
+            "User can review items in cart",
+            "User enters shipping address",
+            "User selects shipping method",
+            "User enters payment information",
+            "Order is processed and confirmation is shown",
+            "Confirmation email is sent"
+          ]
+        },
+        "test_types": ["e2e"],
+        "include_edge_cases": false,
+        "include_negative_tests": false
+      }
+    }
+  }
+}
